@@ -46,12 +46,27 @@ class IntentClassification:
 
         close_matches = get_close_matches(normalized_prediction, list(self.norm_map.keys()), n=1, cutoff=0.8)
         return self.norm_map[close_matches[0]] if close_matches else "unknown"
+    
+    def _get_prompt(self, text):
+
+        return f"""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
+
+### Instruction:
+Classify the intent of the following banking customer query.
+Rule: Output ONLY the exact intent name in these label.
+{self.class_list_str}
+
+### Input:
+{text}
+
+### Response:
+"""
 
     def predict(self, message):
         try:
             result = self.client.generate(
                 model=self.model_name,
-                prompt=message,
+                prompt=self._get_prompt(message),
                 return_full=True
             )
             
