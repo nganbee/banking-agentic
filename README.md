@@ -8,11 +8,11 @@ The primary goal of this system is to provide **automated, policy-compliant, and
 ## System Workflow
 The agent operates through a sequential, multi-node architecture to ensure every response is grounded in reality and bank policy.
 
-1.  **Intent Detection Node**: Analyzes the raw input message using NLU (Natural Language Understanding) to categorize the request (e.g., "Balance Inquiry," "Report Fraud," "Loan Application").
+1.  **Intent Detection Node**: Classify the raw input message using a Finetuned Banking Intent to categorize the request.
 
 2.  **Priority or Risk Detection Node**: Evaluates the urgency and potential risk of the query. It classifies the issue as **Low, Medium, or High** priority, triggering faster paths for high-risk items like stolen cards.
 
-3.  **Policy Retrieval Node**: Uses a RAG (Retrieval-Augmented Generation) approach to fetch specific FAQ entries, official bank policy snippets, or internal support guidelines relevant to the detected intent.
+3.  **Policy Retrieval Node**: Uses a simple FAQ entries, official bank policy snippets, or internal support guidelines relevant to the detected intent.
 
 4.  **Response Drafting Node**: The LLM synthesizes the customer intent and the retrieved policy data to generate a coherent, professional, and helpful draft reply.
 
@@ -56,6 +56,8 @@ To start the agentic service, run:
 ```bash
 python run.py
 ```
+
+---
 
 ## Video Demo
 You can view a comprehensive walkthrough of the system, including the node-by-node decision-making process, at the link below:  
