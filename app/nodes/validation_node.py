@@ -1,3 +1,4 @@
+import re
 from app.core.schemas import AgentState, ValidationResult
 
 def validation_node(state: AgentState) -> AgentState:
@@ -8,8 +9,8 @@ def validation_node(state: AgentState) -> AgentState:
 
     # 1. Get data to validate
     intent_confidence = state.intent_data.confidence
-    draft_text = state.draft_data.draft_response
-    policy_content = state.policy_data.content
+    draft_text = state.draft_data.draft_response.lower()
+    policy_content = state.policy_data.content.lower()
 
     # Validation flags
     is_valid = True
@@ -31,15 +32,23 @@ def validation_node(state: AgentState) -> AgentState:
 
     # --- CHECK 3: Important info presence (Keyword Check) ---
     # If policy mentions 'app' but draft doesn't, AI might have missed it
-    keywords_to_check = ["app", "website", "hotline", "visit"]
-    for word in keywords_to_check:
-        if word in policy_content.lower() and word not in draft_text.lower():
-            missing_info.append(f"Missing mention of '{word}' from policy.")
-
-    # If important info is missing, mark as invalid
-    if missing_info:
-        is_valid = False
-        feedback.append("Important information from policy is missing in the response.")
+    policy_words = re.findall(r'\b\w{5,}\b|\d+', policy_content)
+    unique_policy_words = set(policy_words)
+    
+    matched_words = [word for word in unique_policy_words if word in draft_text]
+    coverage_score = len(matched_words) / len(unique_policy_words) if unique_policy_words else 1.0
+    
+    # missing_info = list(unique_policy_words - set(matched_words))[:5]
+    
+    if unique_policy_words:
+        matched_words = [word for word in unique_policy_words if word in draft_text]
+        coverage_score = len(matched_words) / len(unique_policy_words)
+        
+        if coverage_score < 0.5:
+            is_valid = False
+            missing_count = len(unique_policy_words) - len(matched_words)
+            missing_info = list(unique_policy_words - set(matched_words))[:5]
+            feedback.append(f"Low grounding score ({coverage_score:.2f}). Missing key terms: {', '.join(missing_info)}")
 
     # 2. Pack result into State
     state.validation_data = ValidationResult(

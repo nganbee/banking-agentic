@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Literal
+from typing import List, Optional, Literal, Dict, Any
 from datetime import datetime
 
 # Node Class
@@ -18,6 +18,8 @@ class PolicyResult(BaseModel):
 
 class DraftResult(BaseModel):
     draft_response: str
+    missing_info: str = "None"
+    next_step: str = "Follow policy"
     tone: str = "professional"
 
 class ValidationResult(BaseModel):
@@ -40,6 +42,7 @@ class AgentState(BaseModel):
     policy_data: Optional[PolicyResult] = None
     draft_data: Optional[DraftResult] = None
     validation_data: Optional[ValidationResult] = None
+    metadata: Dict[str, Any] = Field(default_factory=dict)
     
     # Tracking
     is_escalated: bool = False
