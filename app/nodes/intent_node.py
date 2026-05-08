@@ -1,5 +1,6 @@
 import pandas as pd
 import re
+import math
 from difflib import get_close_matches
 from app.clients.ollama_client import ollama_client
 from app.core.settings import settings
@@ -48,24 +49,39 @@ class IntentClassification:
 
     def predict(self, message):
         try:
-            raw_prediction = self.client.generate(
+            result = self.client.generate(
                 model=self.model_name,
-                prompt=message
+                prompt=message,
+                return_full=True
             )
             
+            raw_text = result["text"]
+            intent_from_text = self._map_to_known_label(raw_text)
+            logprobs_list = result.get("logprobs", [])
             
-            return self._map_to_known_label(raw_prediction)
+            relevant_logprobs = [item['logprob'] for item in logprobs_list if item['token'] in intent_from_text]
+    
+            if relevant_logprobs:
+                # Lấy toàn bộ logprobs của các token sinh ra
+                # (Tránh việc lọc token bị sót do sub-words hoặc space)
+                avg_lp = sum(relevant_logprobs) / len(relevant_logprobs)
+                confidence = round(math.exp(avg_lp), 2)
+            else:
+                confidence = 0.6 if intent_from_text != "unknown" else 0.0
+            
+            return intent_from_text, confidence
         except Exception as e:
             print(f"Error in predict via OllamaClient: {e}")
-            return "unknown"
+            return "unknown", 0.0
 
 classifier = IntentClassification()
 
 def intent_node(state: AgentState) -> AgentState:
     print(f"\n--- [NODE] Intent Detection ---")
-    predicted_intent = classifier.predict(state.customer_message)
+    predicted_intent, cofi = classifier.predict(state.customer_message)
     
-    state.intent_data = IntentResult(intent=predicted_intent, confidence=1.0)
+    state.intent_data = IntentResult(intent=predicted_intent, confidence=cofi)
     state.trace.append(f"Intent: {predicted_intent}")
     print(f"Result: {predicted_intent}")
+    print(f"Cofidence: {cofi}")
     return state

@@ -1,7 +1,9 @@
 import requests
+import math
 from typing import Any, List, Dict, Optional
 from app.clients.base import BaseModelClient
 from app.core.settings import settings
+from typing import Any, Dict, List, Optional, Union
 
 class OllamaClient(BaseModelClient):
     def __init__(self, base_url: Optional[str] = None):
@@ -13,23 +15,37 @@ class OllamaClient(BaseModelClient):
         self, 
         model: str, 
         prompt: str, 
-        system_prompt: Optional[str] = None, 
+        system_prompt: Optional[str] = None,
+        return_full: bool = False, 
         **kwargs: Any
-    ) -> str:
+    ) -> Union[str, Dict[str, Any]]:
 
         payload = {
             "model": model,
             "prompt": prompt,
             "stream": False,
-            "options": kwargs.get("options", {})
+            "logprobs": True if return_full else False,
         }
+        
+        if kwargs.get("options"):
+            payload["options"] = kwargs["options"]
+        
         if system_prompt:
             payload["system"] = system_prompt
 
         try:
             response = requests.post(self.generate_url, json=payload, timeout=kwargs.get("timeout", 30))
             response.raise_for_status()
-            return response.json().get("response", "").strip()
+            res_json = response.json()
+
+            if return_full:
+                return {
+                    "text": res_json.get("response", "").strip(),
+                    "logprobs": res_json.get("logprobs", [])
+                }
+            
+            return res_json.get("response", "").strip()
+        
         except requests.exceptions.RequestException as e:
             print(f"Ollama Generate Error: {e}")
             return f"Error: Could not connect to Ollama for model {model}."
