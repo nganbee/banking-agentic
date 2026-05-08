@@ -1,9 +1,7 @@
 import requests
-import math
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict, Optional, Union
 from app.clients.base import BaseModelClient
 from app.core.settings import settings
-from typing import Any, Dict, List, Optional, Union
 
 class OllamaClient(BaseModelClient):
     def __init__(self, base_url: Optional[str] = None):
