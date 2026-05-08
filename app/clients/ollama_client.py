@@ -34,7 +34,7 @@ class OllamaClient(BaseModelClient):
             payload["system"] = system_prompt
 
         try:
-            response = requests.post(self.generate_url, json=payload, timeout=kwargs.get("timeout", 30))
+            response = requests.post(self.generate_url, json=payload, timeout=kwargs.get("timeout", 300))
             response.raise_for_status()
             res_json = response.json()
 
@@ -65,7 +65,7 @@ class OllamaClient(BaseModelClient):
         }
 
         try:
-            response = requests.post(self.chat_url, json=payload, timeout=kwargs.get("timeout", 60))
+            response = requests.post(self.chat_url, json=payload, timeout=kwargs.get("timeout", 300))
             response.raise_for_status()
             return response.json().get("message", {}).get("content", "").strip()
         except requests.exceptions.RequestException as e:
