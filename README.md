@@ -20,13 +20,15 @@ The agent operates through a sequential, multi-node architecture to ensure every
 
 6.  **Escalation Node**: Based on the risk level and the complexity of the validation results, this node decides if the case is resolved or if it requires a **Human-in-the-loop** handoff.
 
+![Workflow](workflow.png "Workflow")
+
 ---
 
 ## Installation and Setup
 
 ### 1. Hosting model server on Google Colab
 
-Run the file: `Ollama-Pinggy.ipynb` for turn on the model server. It will generate the Ollama Tunnel URL which is using Pinggy (expired in 60 mins)
+Run the file: `app/model_server/Ollama-Pinggy.ipynb` for turn on the model server. It will generate the Ollama Tunnel URL which is using Pinggy (expired in 60 mins)
 
 ### 2. Local Agent Setup
 1.  **Clone the repository**:
@@ -52,7 +54,7 @@ Run the file: `Ollama-Pinggy.ipynb` for turn on the model server. It will genera
     OLLAMA_BASE_URL=ollama_url
     ```
 ### 3. Running the Project
-To start the agentic service, run:
+To start the agentic API, run:
 ```bash
 python run.py
 ```
