@@ -13,34 +13,36 @@ def router_node(state: AgentState) -> AgentState:
     decision = ""
     reason = ""
     
-# 1. TRƯỜNG HỢP GỬI THẲNG (Ưu tiên tự động hóa)
-    # Ngay cả khi High Priority, nếu AI làm CỰC TỐT (Valid và Confidence cao) thì vẫn cho gửi.
-    if is_valid and confidence > 0.8 and customer_missing.lower() == "none":
-        decision = "send_reply_directly"
-        reason = "High confidence & Validated response. Safe to automate."
+    # 1. TRƯỜNG HỢP CHUYỂN NGƯỜI THẬT NGAY LẬP TỨC (Ưu tiên hàng đầu)
+    # Cứ là High Priority (ví dụ: báo gian lận, mất tiền) thì không cần biết AI tự tin hay không, 
+    # bắt buộc chuyển thẳng cho nhân viên thật xử lý.
+    if priority == "high":
+        decision = "escalate_to_human"
+        reason = "High priority case. Mandated immediate escalation to human agent."
+        
+    # 2. TRƯỜNG HỢP SAI CHÍNH SÁCH / ẢO GIÁC (Safety Net)
+    # Dù là Low/Medium, nhưng nếu Validation báo AI trả lời sai quy định, cũng phải chuyển người thật.
+    elif not is_valid:
+        decision = "escalate_to_human"
+        reason = f"Quality check failed: {state.validation_data.feedback}"
 
-    # 2. TRƯỜNG HỢP HỎI THÊM (Giảm tải cho người thật)
-    # Nếu khách thiếu thông tin, cứ để AI hỏi, không việc gì phải làm phiền nhân viên.
+    # 3. TRƯỜNG HỢP HỎI THÊM THÔNG TIN (Giảm tải cho nhân viên)
+    # Rủi ro Low/Medium nhưng khách hàng nói chung chung, để AI tự hỏi thêm thông tin.
     elif customer_missing.lower() != "none":
         decision = "ask_for_more_info"
         reason = f"AI identified missing customer data: {customer_missing}"
 
-    # 3. TRƯỜNG HỢP CHUYỂN NGƯỜI THẬT (Chỉ khi thực sự cần thiết)
-    # Chỉ chuyển khi: (Nguy cơ cao VÀ AI không tự tin) HOẶC (AI sai kiến thức nghiêm trọng - is_valid=False)
-    elif priority == "high" and confidence < 0.7:
-        decision = "escalate_to_human"
-        reason = "High priority case with low AI confidence. Needs expert handling."
-    
-    elif not is_valid:
-        # Nếu AI viết sai policy hoặc trả về quá ngắn
-        decision = "escalate_to_human"
-        reason = f"Quality check failed: {state.validation_data.feedback}"
-
-    # 4. TRƯỜNG HỢP DỰ PHÒNG (Fallback)
-    else:
-        # Nếu không rơi vào các case trên, thường là các case Medium/Low mà AI làm ổn
+    # 4. TRƯỜNG HỢP GỬI THẲNG (Tự động hóa hoàn toàn)
+    # Low/Medium, khách cung cấp đủ thông tin, AI làm đúng (valid) và tự tin cao.
+    elif is_valid and confidence > 0.7:
         decision = "send_reply_directly"
-        reason = "Standard case handled by AI."
+        reason = "Validated response with high confidence. Safe to automate."
+
+    # 5. TRƯỜNG HỢP DỰ PHÒNG (Fallback)
+    else:
+        # Xử lý các case an toàn còn lại
+        decision = "send_reply_directly"
+        reason = "Standard Low/Medium case handled by AI."
 
     state.metadata["final_decision"] = decision
     print(f"Final Decision: {decision.upper()} ({reason})")
