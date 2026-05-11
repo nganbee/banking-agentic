@@ -1,0 +1,32 @@
+[
+    {
+        "request_id": "REQ-001",
+        "customer_id": "CUST-9921",
+        "message": "I lost my credit card at the shopping mall! Please block it immediately before someone uses it. I am very stressed."
+    },
+    {
+        "request_id": "REQ-002",
+        "customer_id": "CUST-4432",
+        "message": "What are the current maintenance fees for a Platinum Savings Account? Also, is there a minimum balance requirement?"
+    },
+    {
+        "request_id": "REQ-003",
+        "customer_id": "CUST-1105",
+        "message": "I want to change my home address because I just moved to a new apartment."
+    },
+    {
+        "request_id": "REQ-004",
+        "customer_id": "CUST-8876",
+        "message": "Card."
+    },
+    {
+        "request_id": "REQ-005",
+        "customer_id": "CUST-2290",
+        "message": "I noticed a suspicious transaction of $500 on my account that I didn't authorize. What should I do?"
+    },
+    {
+        "request_id": "REQ-006",
+        "customer_id": "CUST-3341",
+        "message": "How can I apply for a home loan and what documents do I need to prepare?"
+    }
+]
