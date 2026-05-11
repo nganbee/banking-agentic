@@ -64,4 +64,4 @@ python run.py
 ## Video Demo
 You can view a comprehensive walkthrough of the system, including the node-by-node decision-making process, at the link below:  
 
-[Watch video demo here](link_video)
+[Watch video demo here](https://drive.google.com/file/d/1VkDlu97VUs558rlNC-DlzZ7cHQB7Le7Y/view?usp=sharing)
