@@ -25,9 +25,18 @@ class BankingAgentOrchestrator:
             return f"{draft}\n\n Next step: {next_step}"
         
         elif decision == "ask_for_more_info":
-            missing_str = ", ".join(missing) if missing else "some specific details"
+            # --- ĐOẠN CODE MỚI ---
+            if isinstance(missing, list):
+                # Nếu LLM ngoan ngoãn trả về List thì nối bằng dấu phẩy
+                missing_str = ", ".join(missing)
+            elif isinstance(missing, str):
+                # Nếu LLM lỡ trả về String (ví dụ có sẵn gạch đầu dòng) thì lấy xài luôn
+                missing_str = missing
+            else:
+                missing_str = "some specific details"
+            # ----------------------
             return (f"I understand your request, but I need a bit more information to help you properly. "
-                    f"Could you please provide: **{missing_str}**?")
+                    f"Could you please provide:\n**{missing_str}**?")
         
         elif decision == "escalate_to_human":
             return ("I'm connecting you to a human specialist who can handle this complex request. "

@@ -21,7 +21,7 @@ def router_node(state: AgentState) -> AgentState:
 
     # 2. TRƯỜNG HỢP HỎI THÊM (Giảm tải cho người thật)
     # Nếu khách thiếu thông tin, cứ để AI hỏi, không việc gì phải làm phiền nhân viên.
-    elif customer_missing.lower() != "none" and customer_missing.strip() != "":
+    elif customer_missing.lower() != "none":
         decision = "ask_for_more_info"
         reason = f"AI identified missing customer data: {customer_missing}"
 
